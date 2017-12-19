@@ -32,27 +32,18 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginTop="28dp"
-        android:text="DICOVERABLE"
+        android:text="SPEAK"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_list" />
+        app:layout_constraintTop_toBottomOf="@+id/button_connct" />
 
     <Button
-        android:id="@+id/button_list"
+        android:id="@+id/button_connct"
         android:layout_width="140dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginTop="32dp"
-        android:text="LIST"
+        android:text="CONNECT"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ListView
-        android:id="@+id/list"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_disc" />
 </android.support.constraint.ConstraintLayout>
