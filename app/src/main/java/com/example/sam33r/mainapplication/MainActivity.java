@@ -4,16 +4,21 @@ package com.example.sam33r.mainapplication;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
@@ -24,10 +29,64 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothDevice device;
     private BluetoothSocket socket;
     private OutputStream outputStream;
+    public String voice;
+    private TextView resultTV;
 
-    Button button_on, button_off,  bluetooth_connect_btn;
+    private Button button_on, button_off,  bluetooth_connect_btn, button_speak;
 
-    String command; //string variable that will store value to be transmitted to the bluetooth module
+    public String command; //char to be sent to serial
+    public void promtSpeechInput(){
+        Intent i = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        i.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+        i.putExtra(RecognizerIntent.EXTRA_PROMPT,"say something :)");
+
+        try {
+            startActivityForResult(i, 100);
+        }catch (ActivityNotFoundException a) {
+            Toast.makeText(MainActivity.this,"some error",Toast.LENGTH_LONG).show();
+        }
+    }
+    public void onActivityResult( int request_code, int result_code, Intent i) {
+        super.onActivityResult(request_code, result_code, i);
+        switch (request_code) {
+            case 100:
+                if (result_code == RESULT_OK && i != null) {
+                    ArrayList<String> result = i.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    voice = result.get(0);
+
+                    if(voice.equals("on")){
+                        command = "1";
+
+                        try
+                        {
+                            outputStream.write(command.getBytes()); //transmits the value of command to the bluetooth module
+                        }
+                        catch (IOException e)
+                        {
+                            e.printStackTrace();
+                        }
+
+                    }else if(voice.equals("of")){
+                        command = "2";
+
+                        try
+                        {
+                            outputStream.write(command.getBytes());
+                        }
+                        catch (IOException e)
+                        {
+                            e.printStackTrace();
+                        }
+
+                    }
+                   resultTV.setText(voice);
+                }
+
+                break;
+        }
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,11 +96,14 @@ public class MainActivity extends AppCompatActivity {
         //declaration of button variables
         button_on = (Button) findViewById(R.id.button_on);
         button_off = (Button) findViewById(R.id.button_off);
+        button_speak = (Button) findViewById(R.id.button_speak);
 
         bluetooth_connect_btn = (Button) findViewById(R.id.button_connct);
+        resultTV = (TextView) findViewById(R.id.textview_result);
 
 
-        //OnTouchListener code for the forward button (button long press)
+
+
        button_on.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -76,11 +138,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
-
-
-
-        //Button that connects the device to the bluetooth module when pressed
         bluetooth_connect_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -92,6 +149,22 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        button_speak.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                promtSpeechInput();
+
+
+
+            }
+        });
+
+
+
+        //Button that connects the device to the bluetooth module when pressed
+
 
     }
 
