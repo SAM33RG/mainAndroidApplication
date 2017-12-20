@@ -25,6 +25,8 @@ import java.util.UUID;
 public class MainActivity extends AppCompatActivity {
     private final String DEVICE_ADDRESS = "00:21:13:01:EB:50"; //MAC Address of Bluetooth Module
     private final UUID PORT_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
+    private static final int ON =1;
+    private static final int OFF=0;
 
     private BluetoothDevice device;
     private BluetoothSocket socket;
@@ -55,37 +57,67 @@ public class MainActivity extends AppCompatActivity {
                     ArrayList<String> result = i.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                     voice = result.get(0);
 
-                    if(voice.equals("on")){
-                        command = "1";
-
-                        try
-                        {
-                            outputStream.write(command.getBytes()); //transmits the value of command to the bluetooth module
-                        }
-                        catch (IOException e)
-                        {
-                            e.printStackTrace();
-                        }
-
-                    }else if(voice.equals("of")){
-                        command = "2";
-
-                        try
-                        {
-                            outputStream.write(command.getBytes());
-                        }
-                        catch (IOException e)
-                        {
-                            e.printStackTrace();
-                        }
-
-                    }
+                    stringToCommand(voice);
                    resultTV.setText(voice);
                 }
 
                 break;
         }
 
+    }
+
+    public void stringToCommand(String Input){
+        boolean errorMessage = true;
+
+        if(voice.contains("jarvis")){
+            String regex = "\\s*\\bjarvis\\b\\s*";
+            voice.replaceAll(regex,"");
+            if(voice.contains("computer room")){
+                regex = "\\s*\\bcomputer room\\b\\s*";
+                voice.replaceAll(regex,"");
+                if(voice.contains("light")){
+                    regex= "\\s*\\blight\\b\\s*";
+                    voice.replaceAll(regex,"");
+                    if(voice.contains("off") ){
+                        sendToArduino(1,"2");
+                    }
+                    else if (voice.contains("on")){
+                        sendToArduino(1,"1");
+                    }
+
+                }
+                else if(voice.contains("fan")){
+                    regex= "\\s*\\bfan\\b\\s*";
+                    voice.replaceAll(regex,"");
+                    if(voice.contains("off")){
+                        sendToArduino(2,"4");
+                    }
+                    else if (voice.contains("on")){
+                        sendToArduino(2,"3");
+                    }
+
+                }
+            }
+
+        }
+
+
+
+
+
+
+    }
+
+    void sendToArduino(int relay , String send){
+
+        try
+        {
+            outputStream.write(send.getBytes());
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -108,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                command = "1";
+                command = "3";
 
                 try
                 {
@@ -126,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                command = "2";
+                command = "4";
 
                 try
                 {
